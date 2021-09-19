@@ -5,9 +5,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.FileReader;
 import java.io.StringWriter;
 import java.util.Map;
-
+import java.util.ArrayList;
+import java.util.HashMap;
 import com.google.common.collect.ImmutableMap;
 
 import freemarker.template.Configuration;
@@ -29,6 +31,7 @@ public final class Main {
   // use port 4567 by default when running server
   private static final int DEFAULT_PORT = 4567;
 
+
   /**
    * The initial method called when execution begins.
    *
@@ -44,12 +47,49 @@ public final class Main {
     this.args = args;
   }
 
+
+  private static boolean isDouble(String str) {
+    try {
+      Double.parseDouble(str);
+      return true;
+    } catch(NumberFormatException e){
+      return false;
+    }
+  }
+
+  private static boolean isInteger(String str) {
+    try {
+      Integer.parseInt(str);
+      return true;
+    } catch(NumberFormatException e){
+      System.out.println("not an integer");
+      return false;
+    }
+  }
+
+  private static boolean isPath(String str){
+    File f = new File(str);
+    // Check if the specified file
+    // Exists or not
+    if (f.exists())
+    { return true;
+      } else {
+      return false;
+    }
+  }
+
+
+
   private void run() {
     // set up parsing of command line flags
     OptionParser parser = new OptionParser();
 
     // "./run --gui" will start a web server
     parser.accepts("gui");
+
+    MathBot mathbot = new MathBot();
+    starHandler starhandler = new starHandler();
+
 
     // use "--port <n>" to specify what port on which the server runs
     parser.accepts("port").withRequiredArg().ofType(Integer.class)
@@ -60,18 +100,51 @@ public final class Main {
       runSparkServer((int) options.valueOf("port"));
     }
 
+    //running the parsing method
+   // starhandler.stars("data/stars/stardata.csv");
+
     // TODO: Add your REPL here!
     try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
       String input;
       while ((input = br.readLine()) != null) {
         try {
           input = input.trim();
-          String[] arguments = input.split(" ");
-          System.out.println(arguments[0]);
-          // TODO: complete your REPL by adding commands for addition "add" and subtraction
-          //  "subtract"
-        } catch (Exception e) {
-          // e.printStackTrace();
+          String[] arguments = input.split("\\s+(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+
+          /// to see what the arguments are
+//          StringBuffer sb = new StringBuffer();
+//          for(int i = 0; i < arguments.length; i++) {
+//            System.out.println(arguments[i]);
+//          }
+          ///
+
+
+          if (arguments[0].equals("add") && isDouble(arguments[1]) &&
+              isDouble(arguments[2])) {
+            //add(Double.parseDouble(arguments[0]),Double.parseDouble(arguments[2]));
+            System.out.println(mathbot.add(Double.parseDouble(arguments[1]),
+                Double.parseDouble(arguments[2])));
+          } else if (arguments[0].equals("subtract") && isDouble(arguments[1]) &&
+              isDouble(arguments[2])) {
+            System.out.println(mathbot.subtract(Double.parseDouble(arguments[1]),
+                Double.parseDouble(arguments[2])));
+          } else if (arguments.length == 2 && arguments[0].equals("stars") && isPath(arguments[1])) {
+            starhandler.stars(arguments[1]);
+          } else if (arguments[0].equals("naive_neighbors") && isInteger(arguments[1]) &&
+              isDouble(arguments[2]) && isDouble(arguments[3]) && isDouble(arguments[4])) {
+            starhandler
+                .naive_neighbors(Integer.parseInt(arguments[1]), Double.parseDouble(arguments[2]),
+                    Double.parseDouble(arguments[3]), Double.parseDouble(arguments[4]), -1);
+          } else if (arguments[0].equals("naive_neighbors") && isInteger(arguments[1])) {
+            starhandler.naive_neighborsByName(Integer.parseInt(arguments[1]),
+                (arguments[2].replace("\"", "")));
+          }
+          else {
+            System.out.println("ERROR: incorrect command");
+          }
+        }
+        catch (Exception e) {
+           e.printStackTrace();
           System.out.println("ERROR: We couldn't process your input");
         }
       }
@@ -80,7 +153,12 @@ public final class Main {
       System.out.println("ERROR: Invalid input for REPL");
     }
 
+
   }
+
+
+
+
 
   private static FreeMarkerEngine createEngine() {
     Configuration config = new Configuration(Configuration.VERSION_2_3_0);
@@ -150,4 +228,10 @@ public final class Main {
       return new ModelAndView(variables, "main.ftl");
     }
   }
+
+
+
+
+
+
 }
