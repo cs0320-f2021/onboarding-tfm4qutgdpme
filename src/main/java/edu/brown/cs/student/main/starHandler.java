@@ -17,23 +17,24 @@ import java.lang.*;
 import java.util.Arrays;
 
 
-
 public class starHandler {
 
+  /**
+   * constructor for starHandler
+   */
   public starHandler() {
 
   }
 
-
-    // loop through the csv file line by line, separate each thing by comma and store them inside an
-    //array. Then build a star object from each of the arrays and store that inside the starmap
-    //hashmap
   HashMap<Integer, Star> starMap = new HashMap<>();
   Double[] coordinates = new Double[3];
   ArrayList<Star> valueList = new ArrayList(starMap.values());
 
-
-//store the data of stars
+  /**
+   * method that parses the given CSV file and stores data into a hashmap containing the star ID
+   * and the star object
+   * @param filename path to the CSV file
+   */
   public void stars (String filename) {
     starMap = new HashMap<>();
     try (BufferedReader br2 = new BufferedReader(new FileReader(filename))) {
@@ -59,18 +60,33 @@ public class starHandler {
     }
   }
 
+  /**
+   * Class that sorts the stars by their distances
+   */
   private class sortbyDist implements Comparator<Star> {
     public int compare(Star a, Star b){
       return Double.compare(a.getDist(coordinates), b.getDist(coordinates));
     }
   }
 
+  /**
+   * method that prints out k numbers of star ids that are neighbours with a location with base our
+   * search on
+   * @param k Integer representing the number of stars we want to search for
+   * @param x Double representing the x coordinate of the location we base our search on
+   * @param y Double representing the y coordinate of the location we base our search on
+   * @param z Double representing the z coordinate of the location we base our search on
+   * @param id Integer representing the id of the star that corresponds to the coordinate of the
+   *           give location, if the given location is the location of a star in the star data
+   *           Would be -1 if the given location isn't the location of a star in the star data
+   */
   public void naive_neighbors (int k, double x, double y, double z, int id) {
     coordinates[0] = x;
     coordinates[1] = y;
     coordinates[2] = z;
     if (k != 0) {
       Collections.sort(valueList, new sortbyDist());
+      // check if anything is put into the valueList
       // System.out.println(valueList.toString());
       if (id != -1){
         k = k+1;
@@ -78,10 +94,10 @@ public class starHandler {
       if(k > valueList.size()){
         k = valueList.size();
       }
-      //fheck if k is greater than £, if it is, set k to num of stars
+      //check if k is greater than £, if it is, set k to num of stars
       if (!valueList.isEmpty()) {
         for (int i = 0; i < k; i++) {
-    //      System.out.println("id of the lonely star is " + id);
+          //System.out.println("id of the lonely star is " + id);
           //find the star id of star at xyz, and don't print it
           if (((valueList.get(i)).getId()) != id) {
             System.out.println((valueList.get(i)).getId());
@@ -94,15 +110,17 @@ public class starHandler {
   }
 
 
+  /**
+   * method that prints out k numbers of star ids that are neighbours with a star
+   * @param k Integer representing the number of stars we want to search for
+   * @param name String representing the name of the star we are basing our search on
+   */
   public void naive_neighborsByName(int k, String name){
     double X = 0.0;
     double Y = 0.0;
     double Z = 0.0;
     int ID = -1;
-    // find arguments[2] inside your valueList and
     for (Star star : starMap.values()) {
-    //  System.out.println("the name of the star I'm look at is " + star.getName());
-    //  System.out.println("the name of your input star is " + name);
       if ((star.getName()).equals(name)) {
         X = star.getX();
         Y = star.getY();
@@ -112,10 +130,4 @@ public class starHandler {
     }
     naive_neighbors(k, X, Y, Z, ID);
   }
-
-    //then sort this distMap and then spit out k numbers of the list
-
-//for every star inside starmap, perform the calculation to find the distance and store
-    //this distance in the distMap, store the name as the key and the distance as the value
-    //then sort this distMap and then spit out k numbers of the list
   }

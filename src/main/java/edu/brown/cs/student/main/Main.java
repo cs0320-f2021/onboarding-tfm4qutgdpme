@@ -79,7 +79,6 @@ public final class Main {
   }
 
 
-
   private void run() {
     // set up parsing of command line flags
     OptionParser parser = new OptionParser();
@@ -103,42 +102,47 @@ public final class Main {
     //running the parsing method
    // starhandler.stars("data/stars/stardata.csv");
 
-    // TODO: Add your REPL here!
     try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
       String input;
       while ((input = br.readLine()) != null) {
         try {
           input = input.trim();
+          // Don't split the string into two if the string consists of two words if the string is
+          //bounded between a pair of quotation marks
           String[] arguments = input.split("\\s+(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
 
-          /// to see what the arguments are
-//          StringBuffer sb = new StringBuffer();
-//          for(int i = 0; i < arguments.length; i++) {
-//            System.out.println(arguments[i]);
-//          }
-          ///
+          // Progress test: to see what the arguments are
+          //          StringBuffer sb = new StringBuffer();
+          //          for(int i = 0; i < arguments.length; i++) {
+          //            System.out.println(arguments[i]);
+          //          }
 
-
+          //for the lab, conducting the add method
           if (arguments[0].equals("add") && isDouble(arguments[1]) &&
               isDouble(arguments[2])) {
-            //add(Double.parseDouble(arguments[0]),Double.parseDouble(arguments[2]));
             System.out.println(mathbot.add(Double.parseDouble(arguments[1]),
                 Double.parseDouble(arguments[2])));
+            //for the lab, conducting the subtract method
           } else if (arguments[0].equals("subtract") && isDouble(arguments[1]) &&
               isDouble(arguments[2])) {
             System.out.println(mathbot.subtract(Double.parseDouble(arguments[1]),
                 Double.parseDouble(arguments[2])));
+            //when "stars" is called we will parse the given CSV
           } else if (arguments.length == 2 && arguments[0].equals("stars") && isPath(arguments[1])) {
             starhandler.stars(arguments[1]);
+            //when "naive_neighbors" is called with a coordinate,
+            //we will call the naive neighbours method
           } else if (arguments[0].equals("naive_neighbors") && isInteger(arguments[1]) &&
               isDouble(arguments[2]) && isDouble(arguments[3]) && isDouble(arguments[4])) {
-            starhandler
-                .naive_neighbors(Integer.parseInt(arguments[1]), Double.parseDouble(arguments[2]),
+            starhandler.naive_neighbors(Integer.parseInt(arguments[1]), Double.parseDouble(arguments[2]),
                     Double.parseDouble(arguments[3]), Double.parseDouble(arguments[4]), -1);
+            //when "naive_neighbors" is called with a star name we will call the naive neighbours
+            //by name method
           } else if (arguments[0].equals("naive_neighbors") && isInteger(arguments[1])) {
             starhandler.naive_neighborsByName(Integer.parseInt(arguments[1]),
                 (arguments[2].replace("\"", "")));
           }
+          //when an incorrect command is typed
           else {
             System.out.println("ERROR: incorrect command");
           }
@@ -152,8 +156,6 @@ public final class Main {
       e.printStackTrace();
       System.out.println("ERROR: Invalid input for REPL");
     }
-
-
   }
 
 
